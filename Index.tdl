@@ -1,0 +1,126 @@
+
+[Collection	: COllofDataBase]
+	Data Source  : HTTP JSON: "http://localhost:5000/tallyjson?host=127.0.0.1&user=root&password=testconnection&database=tallydata"
+	RemoteRequest: ExportLedger : ASCII
+	
+[Report	: ExportLedger]
+	Form: ExportLedger
+	
+	[Form	: ExportLedger]
+		Delete	: JSONTag
+		Part: ExportLedger
+		
+	[Part	: ExportLedger]	
+		Repeat : ExportLedger : ListOfLedger
+		Line   : ExportLedger
+		Scroll:Vertical	
+	
+	[Line	: ExportLedger]
+		JSONTag:"Ledger"
+		Field : LedName, LedParent, LedBillwise, LedStateAPI, LedCountryAPI, LedMobileApi
+		
+		[Field	:  LedName]
+			JSONTag	: "LedName"
+			Set as	: $Name
+			
+		[Field	: LedParent]
+			JSONTag	: "LedParent"
+			Set as	: $Parent
+			
+		[Field	: LedBillwise]
+			JSONTag	: "LedBillwise"
+			Set as	: $IsBillWiseOn
+			Use	: Logical Field
+		
+		[Field	: LedStateAPI]
+			JSONTag	: "State"
+			Set as	: $State
+			
+		
+		[Field	: LedCountryApi]
+			JSONTag	: "Country"
+			Set as	: $Country
+		
+		[Field	: LedMobileAPI]
+			JSONTag	: "Mobile"
+			Set as	: $LedPHoneNo
+		
+
+[#Menu	: GateWayOfTally]
+	Add	: Button	: SendLedger,GetLedger
+	Add	: Key Item	: "1. Export Ledger"	: 1	: Display	:	ExportLedger
+
+[Button	: SendLedger]
+	Key	: ALt + 1
+	Title	: "Send Ledger"
+	Action	: Call	: SendLedger
+	
+[Button	: GetLedger]
+	Key	: Alt + 2
+	Title	: "Get Ledger"
+	Action	: Call	: GetLedger
+	
+[Function	: GetLedger]
+	Variable	: VarCount			: Number
+	Variable	: VarCount2			: Number
+	
+	0111	: List Delete	: ListOfLedgerDetails
+	0001	:	Set	: VarCount	: 1
+	
+	0002	: Walk Collection	: ListOfLedger
+	0003	: 	List Add	: ListOfLedgerDetails	: ##VarCount
+	0004	: 		Set	: ListOfLedgerDetails[##VarCount].Led_Name		: $Name
+	0005	:		Set	: ListOfLedgerDetails[##VarCount].Led_Parent  	: $Parent
+	0006	:		Set	: ListOfLedgerDetails[##VarCount].Led_Billwise  : $IsBillWiseOn
+	0007	:		Set	: ListOfLedgerDetails[##VarCount].Led_State	    : $State
+	0008	:		Set	: ListOfLedgerDetails[##VarCount].Led_Country   : $Country
+	0009	:		Set	: ListOfLedgerDetails[##VarCount].Led_Mobile	: $LedPHoneNo
+	0010	:	Increment	:	VarCount
+	log		: Log	: $Name
+	0011	:End Walk
+	
+
+[Function	: SendLedger]
+	Variable	: VarCount			: Number
+	Variable	: VarCount2			: Number
+	
+	0111	: List Delete	: ListOfLedgerDetails
+	0001	:	Set	: VarCount	: 1
+	
+	0002	: Walk Collection	: ListOfLedger
+	0003	: 	List Add	: ListOfLedgerDetails	: ##VarCount
+	0004	: 		Set	: ListOfLedgerDetails[##VarCount].Led_Name		: $Name
+	0005	:		Set	: ListOfLedgerDetails[##VarCount].Led_Parent  	: $Parent
+	0006	:		Set	: ListOfLedgerDetails[##VarCount].Led_Billwise  : $IsBillWiseOn
+	0007	:		Set	: ListOfLedgerDetails[##VarCount].Led_State	    : $State
+	0008	:		Set	: ListOfLedgerDetails[##VarCount].Led_Country   : $Country
+	0009	:		Set	: ListOfLedgerDetails[##VarCount].Led_Mobile	: $LedPHoneNo
+	0010	:	Increment	:	VarCount
+	log		: Log	: $Name
+	0011	:End Walk
+	
+	walk01	: Walk Collection	:	COllofDataBase
+	end01	: End Walk
+
+
+[Collection	: ListOfLedger]
+	Type	: Ledger
+	Fetch	: *.*,Name
+	
+[Collection : LSLedgerDetails]
+	Data Source:Variable:ListOfLedgerDetails
+	Fetch	: *.*,Led_Name,Led_Parent,Led_Billwise,Led_State,Led_Country,Led_Mobile
+	
+[System		: Variable]
+	List Variable: ListOfLedgerDetails
+	
+[Variable	: ListOfLedgerDetails]
+	
+Variable  : Led_Name		: String
+Variable  : Led_Parent      : String
+Variable  : Led_Billwise    : String
+Variable  : Led_State	    : String
+Variable  : Led_Country     : String
+Variable  : Led_Mobile	    : Number
+
+	
