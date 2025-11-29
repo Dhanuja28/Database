@@ -4,30 +4,105 @@
 <meta charset="UTF-8">
 <title>Ledger Dashboard</title>
 <style>
-    body { margin:0; font-family: Arial, sans-serif; background:#f3f4f6; }
-    .header { background:#1e40af; color:white; padding:15px; display:flex; align-items:center; font-size:20px; font-weight:bold; }
-    .header img { width:40px; margin-right:15px; }
-    .sidebar { width:220px; height:100vh; background:#1f2937; color:white; padding-top:20px; position:fixed; top:0; left:0; }
-    .sidebar h3 { text-align:center; margin-bottom:20px; font-size:22px; border-bottom:1px solid #374151; padding-bottom:10px; }
-    .sidebar a { display:block; padding:12px 20px; color:white; text-decoration:none; font-size:16px; border-bottom:1px solid #374151; }
-    .sidebar a:hover { background:#2563eb; }
-    .content { margin-left:240px; padding:20px; }
-    .card { background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-    table { width:100%; border-collapse:collapse; margin-top:10px; }
-    table th, table td { padding:12px; text-align:left; border-bottom:1px solid #ddd; }
-    table th { background:#2563eb; color:white; }
-    table tr:hover { background:#f1f5f9; }
-    #loading { margin-top:10px; color:#1e40af; font-weight:bold; }
-    #error { margin-top:10px; color:red; font-weight:bold; display:none; }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f4f6;
+    }
+
+    /* Top header */
+    .header {
+        background: #1e40af;
+        color: white;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .header img {
+        width: 40px;
+        margin-right: 15px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 220px;
+        height: 100vh;
+        background: #1f2937;
+        color: white;
+        padding-top: 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    .sidebar h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 22px;
+        border-bottom: 1px solid #374151;
+        padding-bottom: 10px;
+    }
+
+    .sidebar a {
+        display: block;
+        padding: 12px 20px;
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        border-bottom: 1px solid #374151;
+    }
+
+    .sidebar a:hover {
+        background: #2563eb;
+    }
+
+    /* Main content */
+    .content {
+        margin-left: 240px;
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table th, table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background: #2563eb;
+        color: white;
+    }
+
+    table tr:hover {
+        background: #f1f5f9;
+    }
 </style>
 </head>
 <body>
 
+<!-- Header -->
 <div class="header">
     <img src="https://cdn-icons-png.flaticon.com/512/6026/6026877.png" alt="logo">
     Sun IT Solutions – Ledger Dashboard
 </div>
 
+<!-- Sidebar -->
 <div class="sidebar">
     <h3>Dashboard</h3>
     <a href="#">Home</a>
@@ -37,12 +112,11 @@
     <a href="#">Settings</a>
 </div>
 
+<!-- Main Content -->
 <div class="content">
     <div class="card">
         <h2>Ledger Table</h2>
-        <div id="loading">Loading ledger data...</div>
-        <div id="error"></div>
-        <table id="dataTable" style="display:none;">
+        <table id="dataTable">
             <thead>
                 <tr>
                     <th>Ledger Name</th>
@@ -56,49 +130,20 @@
 </div>
 
 <script>
-// Detect environment: local vs online
-let API_URL;
-if(location.hostname === "localhost" || location.hostname.startsWith("192.168.")) {
-    // Local backend
-    API_URL = "http://192.168.1.121:5000/api/ledgers";
-} else {
-    // Online backend (replace with your ngrok or deployed URL)
-    API_URL = "https://abcd1234.ngrok.io/api/ledgers";
-}
-
-const tbody = document.querySelector("#dataTable tbody");
-const table = document.getElementById("dataTable");
-const loading = document.getElementById("loading");
-const errorDiv = document.getElementById("error");
-
-fetch(API_URL)
-  .then(res => {
-      if(!res.ok) throw new Error("Network response was not ok");
-      return res.json();
-  })
+fetch("http://192.168.1.121:5000/api/ledgers")
+  .then(res => res.json())
   .then(data => {
-      tbody.innerHTML = "";
-      if(data.length === 0) {
-          loading.textContent = "No ledger data available.";
-          return;
-      }
-      data.forEach(row => {
-          const tr = `<tr>
-                        <td>${row.LedName}</td>
-                        <td>${row.Parent}</td>
-                        <td>${row.Billwise}</td>
-                      </tr>`;
-          tbody.innerHTML += tr;
-      });
-      loading.style.display = "none";
-      table.style.display = "table";
+    let tbody = document.querySelector("#dataTable tbody");
+    data.forEach(row => {
+      let tr = `<tr>
+                  <td>${row.LedName}</td>
+                  <td>${row.Parent}</td>
+                  <td>${row.Billwise}</td>
+                </tr>`;
+      tbody.innerHTML += tr;
+    });
   })
-  .catch(err => {
-      loading.style.display = "none";
-      errorDiv.style.display = "block";
-      errorDiv.textContent = "Error loading data: " + err.message;
-      console.error("Error fetching ledger data:", err);
-  });
+  .catch(err => console.log("Error loading data:", err));
 </script>
 
 </body>
