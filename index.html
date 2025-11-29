@@ -92,6 +92,18 @@
     table tr:hover {
         background: #f1f5f9;
     }
+
+    #loading {
+        margin-top: 10px;
+        color: #1e40af;
+        font-weight: bold;
+    }
+
+    #error {
+        margin-top: 10px;
+        color: red;
+        font-weight: bold;
+    }
 </style>
 </head>
 <body>
@@ -116,7 +128,9 @@
 <div class="content">
     <div class="card">
         <h2>Ledger Table</h2>
-        <table id="dataTable">
+        <div id="loading">Loading ledger data...</div>
+        <div id="error" style="display:none;"></div>
+        <table id="dataTable" style="display:none;">
             <thead>
                 <tr>
                     <th>Ledger Name</th>
@@ -130,20 +144,44 @@
 </div>
 
 <script>
-fetch("http://192.168.1.121:5000/api/ledgers")
-  .then(res => res.json())
-  .then(data => {
-    let tbody = document.querySelector("#dataTable tbody");
-    data.forEach(row => {
-      let tr = `<tr>
-                  <td>${row.LedName}</td>
-                  <td>${row.Parent}</td>
-                  <td>${row.Billwise}</td>
-                </tr>`;
-      tbody.innerHTML += tr;
-    });
+// Replace this with your backend URL
+// For local testing: http://192.168.1.121:5000/api/ledgers
+// For ngrok / online: https://abcd1234.ngrok.io/api/ledgers
+const API_URL = "http://192.168.1.121:5000/api/ledgers";
+
+const tbody = document.querySelector("#dataTable tbody");
+const table = document.getElementById("dataTable");
+const loading = document.getElementById("loading");
+const errorDiv = document.getElementById("error");
+
+fetch(API_URL)
+  .then(res => {
+      if(!res.ok) throw new Error("Network response was not ok");
+      return res.json();
   })
-  .catch(err => console.log("Error loading data:", err));
+  .then(data => {
+      tbody.innerHTML = ""; // clear table before adding rows
+      if(data.length === 0) {
+          loading.textContent = "No ledger data available.";
+          return;
+      }
+      data.forEach(row => {
+          const tr = `<tr>
+                        <td>${row.LedName}</td>
+                        <td>${row.Parent}</td>
+                        <td>${row.Billwise}</td>
+                      </tr>`;
+          tbody.innerHTML += tr;
+      });
+      loading.style.display = "none";
+      table.style.display = "table";
+  })
+  .catch(err => {
+      loading.style.display = "none";
+      errorDiv.style.display = "block";
+      errorDiv.textContent = "Error loading data: " + err.message;
+      console.error("Error fetching ledger data:", err);
+  });
 </script>
 
 </body>
