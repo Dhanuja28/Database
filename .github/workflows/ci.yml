@@ -22,9 +22,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run upload script 1
+      - name: Run upload script
         run: |
-            node server.js
-            node React.js
-      
-
+          node server.js
+          node React.js

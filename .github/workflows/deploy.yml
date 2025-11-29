@@ -1,15 +1,17 @@
 name: Deploy Website
 
 on:
-  push:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["Node.js CI"]   # MUST match CI.yml name
+    types:
+      - completed
 
 permissions:
-  contents: write    # 👈 this gives write permission to push
+  contents: write
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}   # only if CI succeeded
     runs-on: ubuntu-latest
 
     steps:
@@ -20,5 +22,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./       # your website root
           publish_branch: gh-pages
