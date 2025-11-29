@@ -23,6 +23,5 @@ jobs:
         run: npm install
 
       - name: Run upload script
-        run: |
+        run: 
           node server.js
-          node React.js
