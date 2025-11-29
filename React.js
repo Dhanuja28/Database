@@ -4,7 +4,7 @@ function LedgerReport() {
   const [ledgers, setLedgers] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/ledgers")
+    fetch("http://192.168.1.121:5000/api/ledgers")
       .then(res => res.json())
       .then(data => setLedgers(data));
   }, []);
