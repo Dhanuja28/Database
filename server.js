@@ -2,9 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const mysql = require('mysql2');
+const path = require('path');
 
 app.use(cors());
 app.use(express.json());
+
+// Serve index.html automatically
+app.use(express.static(path.join(__dirname, "public")));
 
 const db = mysql.createConnection({
   host: "127.0.0.1",

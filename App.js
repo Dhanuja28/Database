@@ -5,7 +5,7 @@ export default function App() {
   const [ledgers, setLedgers] = useState([]);
 
   useEffect(() => {
-    fetch("http://192.168.x.x:5000/api/ledgers")
+    fetch("http://192.168.1.121:5000/api/ledgers")
       .then(res => res.json())
       .then(data => setLedgers(data))
       .catch(err => console.log(err));
