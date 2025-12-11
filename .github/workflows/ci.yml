@@ -34,7 +34,6 @@ jobs:
       - name: Run VBS script
         run: cscript //nologo scripts/myscript.vbs
 
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
